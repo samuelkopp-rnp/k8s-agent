@@ -1,18 +1,18 @@
-name: Docker Image CI
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
+name: publish
+on: [push]
 jobs:
-
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file k8s-agent.Dockerfile --tag k8s-agent:$(date +%s)
+publish-hello-docker-image:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v2
+- name: Login to GitHub Container Registry
+uses: docker/login-action@v1
+with:
+registry: ghcr.io
+username: ${{ github.actor }}
+password: ${{ secrets.GITHUB_TOKEN }}
+- name: Build the k8s-agent Docker image
+  run: |
+       docker build . --tag ghcr.io/samuelkopp-rnp/k8s-agent:latest
+       docker run ghcr.io/samuelkopp-rnp/k8s-agent:latest
+       docker push ghcr.io/samuelkopp-rnp/k8s-agent:latest
